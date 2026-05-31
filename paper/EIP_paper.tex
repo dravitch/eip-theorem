@@ -1,21 +1,856 @@
-\documentclass{article}
-\usepackage{amsmath, amssymb}
+\documentclass[11pt,a4paper]{article}
 
-\title{Epistemic Impossibility Principle (EIP)}
-\author{Andrei Dravitch}
-\date{}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{authblk}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage[numbers,sort&compress]{natbib}
+
+\geometry{margin=2.5cm}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=blue!60!black,
+  urlcolor=blue!60!black,
+  pdftitle={The Epistemic Interface Problem in Multi-Agent Systems},
+  pdfauthor={Andrei Dinga-Reassi},
+}
+
+%% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+%% Framed box for key results
+\newmdenv[
+  linecolor=blue!40!black,
+  backgroundcolor=blue!3,
+  linewidth=1pt,
+  innertopmargin=8pt,
+  innerbottommargin=8pt,
+  innerleftmargin=10pt,
+  innerrightmargin=10pt,
+]{keyresult}
+
+\newmdenv[
+  linecolor=gray!60,
+  backgroundcolor=gray!5,
+  linewidth=0.5pt,
+  innertopmargin=6pt,
+  innerbottommargin=6pt,
+  innerleftmargin=8pt,
+  innerrightmargin=8pt,
+]{changebox}
+
+%% Header
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small EIP — Working Paper v0.2 — May 2026}
+\lhead{\small Dinga-Reassi}
+\cfoot{\thepage}
+
+%% Section formatting
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+
+% Math shortcuts
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Bel}{\mathbb{B}}
+\newcommand{\Theta}{\Theta}
+\newcommand{\norm}[1]{\left\|#1\right\|}
 
 \begin{document}
-\maketitle
 
+%% ─────────────────────────────────────────────
+%%  TITLE PAGE
+%% ─────────────────────────────────────────────
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+
+{\LARGE\bfseries The Epistemic Interface Problem\\[0.4em]
+in Multi-Agent Systems}\\[0.6em]
+{\large\itshape Why Latent-Space Communication Requires a Formal Contract}
+
+\vspace{0.8cm}
+{\large Version 0.2 --- Working Paper --- May 2026}
+
+\vspace{0.6cm}
+\begin{tabular}{c}
+\textbf{Andrei Dinga-Reassi}\\[0.2em]
+Independent Researcher\\[0.2em]
+\href{https://github.com/dravitch}{github.com/dravitch}\\[0.2em]
+\texttt{}
+\end{tabular}
+
+\vspace{0.6cm}
+{\small
+Zenodo: \href{https://doi.org/10.5281/zenodo.20478868}{10.5281/zenodo.20478868}
+\quad$\cdot$\quad
+Repository: \href{https://github.com/dravitch/eip-theorem}{github.com/dravitch/eip-theorem}
+}
+
+\vspace{0.8cm}
+\hrule
+\vspace{0.4cm}
+\begin{minipage}{0.9\textwidth}
+\small\itshape
+Based on: RecursiveMAS \cite{yang2026} $\cdot$ IB \cite{tishby1999} $\cdot$
+GIB \cite{westphal2025} $\cdot$ Deep EK-NN \cite{hoarau2025} $\cdot$
+Epistemic DL \cite{manchingal2022} $\cdot$ IoA \cite{ioa2025} $\cdot$
+Perry \& Tsoukias \cite{perry1998} $\cdot$ Smets \cite{smets1994} $\cdot$
+Belnap \cite{belnap1977} $\cdot$ Deno\oe{}ux \cite{denoeux2008}
+\end{minipage}
+\vspace{0.4cm}
+\hrule
+
+\vspace{0.8cm}
+\begin{changebox}
+\small
+\textbf{Key changes v0.1 $\to$ v0.2.}
+Section~3.3 corrected: the IB connection is reformulated as a neural-implementation
+phenomenon (not predicted by Tishby's original IB).
+Section~5.3 strengthened: complete axiomatic justification of rules O1/O3/O5
+(LCP, Klawonn \& Smets 1992, Deno\oe{}ux 2008).
+Section~5.5 added: theoretical unification of \texttt{belief\_mass} and
+\texttt{belnap\_state} via Perry \& Tsoukias's (1998) fuzzy Belnap space.
+Section~10 added: future extensions including latent credal channel, adaptive
+recursive fusion, and epistemic-measure stopping criterion.
+\end{changebox}
+
+\vspace{0.6cm}
+\begin{mdframed}[linecolor=gray!40,backgroundcolor=gray!4]
+\small\textbf{Acknowledgements.}
+This work was developed with the assistance of Claude (Anthropic) as a
+collaborative reasoning tool for specification design, formal verification, and
+peer review simulation. The intellectual contributions, design decisions, and
+responsibility for the content are those of the author.
+Experimental validation was conducted in the companion repository
+\href{https://github.com/symbioticode/epistemic-impossibility-validation}%
+{symbioticode/epistemic-impossibility-validation}.
+\end{mdframed}
+\end{titlepage}
+
+%% ─────────────────────────────────────────────
+%%  ABSTRACT -- page 2
+%% ─────────────────────────────────────────────
 \begin{abstract}
-This document presents the formal statement and proof structure of the Epistemic Impossibility Principle.
+We identify and formalise a fundamental gap in the multi-agent systems (MAS)
+literature, which we call the \textbf{Epistemic Interface Problem (EIP)}: the
+absence of a formal contract governing the transformation of an agent's internal
+latent state into an auditable epistemic declaration. Current research conflates
+two distinct problems --- \emph{expressivity} (how to transmit rich internal states
+without loss) and \emph{epistemic accountability} (how a receiving agent or
+orchestrator can formally reason about what it received). Recent work on
+latent-space communication (RecursiveMAS, Interlat, KVComm) solves the first
+problem but leaves the second entirely open.
+
+We prove that the expressivity--accountability boundary is \textbf{structurally
+necessary}: any channel that maximises expressivity in the continuous latent space
+is provably non-auditable under standard certification frameworks (DO-178C,
+IEC~61508). We then formally characterise the EIP and propose a minimal interface
+contract --- the \textbf{CLAIM schema} --- that resolves the problem under bounded
+assumptions, using the Transferable Belief Model (TBM, Smets 1994), Belnap's
+four-valued logic, and AGM belief revision.
+
+We show that RecursiveMAS's Gradient Death Theorem (Theorem~4.1, Yang et
+al.\ 2026) is a special case of a more general result derivable from Information
+Bottleneck theory --- \emph{restricted to neural implementations via softmax}, not
+to the original IB theory itself --- and that this general result motivates the
+need for a formal epistemic interface at the latent/symbolic boundary. A new
+Section~5.5 establishes the theoretical unification of the \texttt{belief\_mass}
+and \texttt{belnap\_state} fields via Perry \& Tsoukias's (1998) fuzzy Belnap
+space, providing complete axiomatic foundations for all five CLAIM invariants.
 \end{abstract}
 
-\section{Introduction}
-TODO.
+\newpage
+\tableofcontents
+\newpage
 
-\bibliographystyle{plain}
+%% ─────────────────────────────────────────────
+\section{Introduction}
+%% ─────────────────────────────────────────────
+
+\subsection{The Confusion at the Heart of Inter-Agent Communication}
+
+The design of communication protocols between AI agents has, until recently, been
+treated as a single problem: how do agents share information efficiently? This
+framing masks a fundamental dichotomy.
+
+Consider two agents $A_1$ and $A_2$ collaborating on a classification task.
+$A_1$ has processed sensor data and formed an internal representation
+$h \in \Real^{d_h}$ encoding its assessment. It must communicate this to $A_2$
+and to an orchestrator~$O$ that must synthesise the outputs of multiple agents
+into a decision. Two distinct questions arise:
+
+\textbf{Q1 --- Expressivity.} What proportion of $A_1$'s internal state $h$ can be
+faithfully transmitted to $A_2$? What is the information loss induced by the
+channel?
+
+\textbf{Q2 --- Epistemic accountability.} What does $A_2$ (or $O$) \emph{know}
+after receiving $A_1$'s message? Can $O$ formally propagate uncertainty, detect
+contradictions between agents, identify the agent responsible for a conflict, and
+distinguish ``I observed nothing'' from ``I did not look''?
+
+The existing literature addresses Q1 extensively but Q2 almost entirely in
+isolation from Q1. No work formalises the interface between the answer to Q1 (a
+latent-space communication mechanism) and the answer to Q2 (a formal epistemic
+reasoning framework). This interface --- the \emph{Epistemic Interface} --- is the
+subject of this paper.
+
+\subsection{Why This Is Urgent}
+
+Three convergent developments make this formalisation urgent:
+
+\textbf{Development 1 --- Latent communication architectures are maturing.}
+RecursiveMAS \cite{yang2026}, Interlat \cite{du2025}, KVComm \cite{ye2025}, and
+SDE \cite{tang2025} have demonstrated that agents communicating via latent states
+outperform textual MAS by 8--17\% with significant efficiency gains. This
+architecture is becoming standard.
+
+\textbf{Development 2 --- Deployment contexts demand auditability.} As MAS expand
+into high-stakes domains --- medical diagnosis, autonomous systems, military ISR
+(Intelligence, Surveillance, Reconnaissance), financial compliance --- formal
+auditability, provenance tracing, and uncertainty quantification become
+non-negotiable. These requirements are formalised in DO-178C (avionics software),
+IEC~61508 (functional safety), and NATO STANAG protocols.
+
+\textbf{Development 3 --- The gap is not being closed.} Protocols such as A2A,
+MCP, and FIPA-ACL standardise message syntax but not epistemic content. Uncertainty
+quantification methods for LLMs operate in language space and inherit its
+expressive limitations. Deep evidential learning methods \cite{hoarau2025,manchingal2022}
+produce formal belief functions but only within individual agents, not across
+agent boundaries in a MAS.
+
+\subsection{Contributions}
+
+This paper makes five contributions:
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Formalisation of the EIP.} We define the EIP precisely as the
+problem of constructing a formal mapping $\gamma: \Real^{d_h} \to \Bel(\Theta)$
+from agents' latent states to belief structures over a shared frame of discernment
+$\Theta$, under auditability, provenance, and qualified silence constraints.
+
+\item \textbf{Generalisation of RecursiveMAS Theorem~4.1.} We show that the
+Gradient Death result is a special case of a more general theorem derivable from
+Information Bottleneck theory, restricted to neural implementations via softmax ---
+not to the IB theory itself.
+
+\item \textbf{Structural necessity of the Expressivity/Accountability boundary.}
+We prove that no single channel can simultaneously maximise expressivity (continuous
+latent) and satisfy auditability constraints (symbolic, discrete, certifiable).
+
+\item \textbf{The CLAIM schema as a formal solution.} A minimal interface contract
+with five invariants satisfying the EIP under bounded assumptions.
+
+\item \textbf{Theoretical unification.} We establish that the \texttt{belief\_mass}
+and \texttt{belnap\_state} fields are projections of a single mathematical object
+--- a mass function over Perry \& Tsoukias's (1998) fuzzy Belnap space ---
+providing complete axiomatic foundations for the CLAIM design choices.
+\end{enumerate}
+
+%% ─────────────────────────────────────────────
+\section{Background and Related Work}
+%% ─────────────────────────────────────────────
+
+\subsection{Latent-Space Communication Between Agents}
+
+\paragraph{Textual MAS.} The dominant paradigm for LLM-based MAS uses natural
+language as the communication medium (AutoGen, ChatDev, MetaGPT). This offers
+human interpretability but suffers from documented limitations: semantic
+compression, information loss at sampling, and inability to transmit complete
+reasoning trajectories.
+
+\paragraph{Latent communication.} A growing body of work replaces text with latent
+representations: CIPHER transmits probability-weighted token embeddings; AC
+transmits last-token hidden states; Interlat extends this to full inter-agent
+communication with compression; KVComm shares key-value caches; SDE transmits
+state-delta trajectories. RecursiveMAS \cite{yang2026} --- the most systematic ---
+treats the entire MAS as a recursive computation in latent space with
+co-optimisation via shared gradient credit attribution, demonstrating +8.3\%
+accuracy, $1.2\times$--$2.4\times$ speedup, and 34.6\%--75.6\% token reduction.
+
+\paragraph{The theoretical gap.} None of this work addresses what a receiving agent
+or orchestrator can formally conclude from the received latent state. The message
+is richer --- but the epistemic framework for processing it is no more developed
+than for text.
+
+\subsection{Epistemic Frameworks for Individual Agents}
+
+\paragraph{Bayesian approaches.} Standard uncertainty quantification in LLMs uses
+probability theory, typically detecting epistemic uncertainty via log-likelihood
+thresholding or iterative prompting. These methods remain in language space and
+inherit its gradient limitations.
+
+\paragraph{Evidential approaches (Dempster-Shafer / TBM).} DST \cite{shafer1976}
+and the TBM \cite{smets1994} represent epistemic uncertainty as mass functions
+$m: 2^\Theta \to [0,1]$, enabling explicit representation of ignorance (mass on
+$\Theta$) and conflict (mass on $\emptyset$ in the unnormalised formulation). Key
+results: Deep EK-NN \cite{hoarau2025} applies $k$-nearest-neighbours in latent
+space to produce mass functions by distance-weighted evidential combination,
+explicitly separating epistemic uncertainty (non-specificity, Dubois \& Prade)
+from aleatoric uncertainty (discord, Klir \& Ramer). Epistemic Deep Learning
+\cite{manchingal2022} produces mass functions via random set neural networks.
+
+\paragraph{Critical limitation.} These frameworks produce formal belief functions
+\emph{within} individual agents. They do not define how these belief functions
+should be communicated across agent boundaries in a MAS, nor how an orchestrator
+should combine belief functions from multiple agents while preserving formal
+epistemic properties.
+
+\subsection{Communication Protocols for MAS}
+
+FIPA-ACL (2002), A2A (2025), and MCP standardise message envelopes, performatives,
+and interaction patterns. They impose no agreement on semantic content or epistemic
+representation. The Internet of Agents architecture \cite{ioa2025} proposes
+semantic layer L9 for shared ontology negotiation --- an advance toward the EIP,
+but it remains agnostic about belief representation, uncertainty, and conflict.
+No existing protocol specifies: (a) how an agent expresses its degree of belief in
+a proposition, formally and comparably across heterogeneous agents; (b) how a
+receiving orchestrator should combine belief expressions from multiple agents;
+(c) how to represent qualified silence; (d) how to preserve provenance so that the
+origin of a conflicting belief can be identified.
+
+%% ─────────────────────────────────────────────
+\section{The Gradient Death Theorem --- Generalisation}
+%% ─────────────────────────────────────────────
+
+\subsection{RecursiveMAS Theorem~4.1 --- The Original Result}
+
+\begin{keyresult}
+\begin{theorem}[Yang et al.\ 2026 --- Gradient Death in Textual MAS]
+Under Assumption~A.1 (textual SFT uses
+$R_\text{text}(h) = W_\text{in} \cdot \text{softmax}(W_\text{out} \cdot h)$
+as the recursive link, with
+$\|W_\text{in}\|_2, \|W_\text{out}\|_2 \le O(1)$),
+if tokens are confident with entropy $\varepsilon \le \bar\varepsilon$ where
+$\bar\varepsilon \ll 1$, then:
+\[
+  \left\|\frac{\partial R_\text{text}(h)}{\partial h}\right\|_2 \le O(\varepsilon) \ll 1.
+\]
+\end{theorem}
+\end{keyresult}
+
+\textit{Proof sketch (verified directly in Appendix~A.3 of Yang et al.\ 2026).}
+(1) By chain rule: $J_\text{text} = W_\text{in} \cdot S \cdot W_\text{out}$,
+where $S = \text{diag}(p) - pp^\top$ and $p = \text{softmax}(W_\text{out} h)$.
+(2) By sub-multiplicativity: $\|J_\text{text}\|_2 \le O(\|S\|_2)$.
+(3) Since $S$ is the covariance matrix of a categorical distribution (PSD):
+$\|S\|_2 \le \text{Tr}(S) = 1 - \|p\|_2^2$.
+(4) By the logarithmic inequality $\ln z \le z - 1$:
+$\varepsilon \ge \sum_i p_i(-\ln p_i) \ge 1 - \|p\|_2^2$.
+(5) Therefore $\|J_\text{text}\|_2 \le O(\varepsilon)$. $\square$
+
+\begin{remark}[Scope correction, v0.2]
+The theorem assumes a standard softmax decoder ($T=1$, deterministic). For
+temperature $T \ne 1$, the bound becomes $O(\varepsilon/T)$. For stochastic
+decoders (top-$k$, top-$p$), the gradient is undefined in the classical sense.
+The theorem does not cover stochastic communication channels.
+\end{remark}
+
+\subsection{The General Theorem --- Any Discrete Communication Channel}
+
+We prove that gradient death holds for any communication channel that discretises
+a continuous latent state.
+
+\begin{definition}[Discrete Communication Channel]
+A communication channel $C: \Real^{d_h} \to \Delta(V)$ is a \emph{discrete
+communication channel} if it maps a latent state $h$ to a probability distribution
+over a finite vocabulary $V$ with $|V| < \infty$. The effective Jacobian of the
+round-trip communication cycle (encode $\to$ decode) is
+$J_C = \partial R_C(h)/\partial h$,
+where $R_C(h) = \mathbb{E}_{v \sim C(h)}[\text{embed}(v)]$ is the expected
+re-embedding of the sampled output.
+\end{definition}
+
+\begin{keyresult}
+\begin{theorem}[Generalised Gradient Death]
+Let $C: \Real^{d_h} \to \Delta(V)$ be any discrete communication channel with
+output distribution $p_C(h)$. Let $H(p_C(h)) \le \varepsilon$ be the output
+entropy of the channel. Under bounded embedding norms, with probability
+$\ge 1 - \delta$:
+\[
+  \left\|\frac{\partial R_C(h)}{\partial h}\right\|_2 \le O(\varepsilon).
+\]
+\end{theorem}
+\end{keyresult}
+
+\textit{Proof sketch.}
+The Jacobian decomposes as $J_C = E_\text{embed} \cdot S_C \cdot \nabla_h p_C$,
+where $S_C = \text{diag}(p_C) - p_C p_C^\top$ is the covariance matrix of the
+output distribution. Since $S_C$ is PSD:
+$\|S_C\|_2 \le \text{Tr}(S_C) = 1 - \|p_C\|_2^2$.
+By the same logarithmic inequality: $1 - \|p_C\|_2^2 \le H(p_C) \le \varepsilon$.
+Under bounded embedding norms: $\|J_C\|_2 \le O(\varepsilon)$. $\square$
+
+\textbf{Key intuition.} The entropy $\varepsilon$ of the channel's output
+distribution --- not the vocabulary size, not the encoding mechanism --- determines
+the gradient bound. The more confident an agent is ($\varepsilon \to 0$), the more
+the gradient vanishes, regardless of the vocabulary, the implementation of the
+mapping $h \to V$, or whether the vocabulary represents tokens, ontology concepts,
+or JSON schema values.
+
+\subsection{Connection with Information Bottleneck Theory (v0.2 --- Corrected)}
+
+\begin{changebox}
+\textbf{Correction v0.1 $\to$ v0.2.}
+In v0.1, the connection to IB was presented as if the matrix
+$S = \text{diag}(p) - pp^\top$ appeared explicitly in Tishby (1999). This is
+incorrect. Tishby's IB optimises directly over the simplex of probability
+distributions, without softmax parametrisation. The matrix $S$ is an artefact of
+the \emph{neural implementation} of IB --- not of the IB theory itself. This
+correction strengthens Theorem~6.1: the Expressivity/Accountability boundary is
+architectural, not tied to an implementation choice.
+\end{changebox}
+
+In the Information Bottleneck framework \cite{tishby1999}, a communication channel
+corresponds to the stochastic mapping $p(T|X)$, where $X$ is the input (latent
+state $h$), $T$ is the transmitted representation, and $Y$ is the downstream
+prediction target. The IB objective is:
+\[
+  \min_{p(T|X)} \mathcal{L}_\text{IB} = I(X;T) - \beta \cdot I(T;Y).
+\]
+The matrix $S = \text{diag}(p) - pp^\top$ does not appear in the original IB
+formulation. It appears \emph{only} when the IB channel $p(T|X)$ is parametrised
+by a neural network with a softmax layer. This is an artefact of the softmax
+parametrisation. RecursiveMAS resolves the problem by replacing the
+discrete-softmax channel with a continuous residual channel (RecursiveLink) whose
+Jacobian remains close to the identity --- equivalent to solving IB without
+saturation, consistent with the GIB principle \cite{westphal2025} of synergistic
+feature combination.
+
+\begin{corollary}[Scope of Theorem~4.1]
+The Gradient Death result of Yang et al.\ (2026) applies to any discrete channel
+--- including JSON-encoded ontologies, FIPA-ACL performatives, and symbolic logic
+assertions --- when these channels are implemented via softmax on a categorical
+output distribution in a high-confidence regime. It does \emph{not} apply to:
+(a) continuous latent channels (RecursiveMAS); (b) stochastic decoders (top-$k$,
+top-$p$); (c) algebraic operations on probability masses (TBM combination rules are
+not communication channels in the sense of Definition~3.1).
+\end{corollary}
+
+\begin{corollary}[Structural Necessity of the Boundary]
+No single channel can simultaneously: (a) avoid gradient death (requires continuous
+latent space), and (b) satisfy formal auditability constraints (requires symbolic,
+discrete, certifiable representations). The boundary between the latent domain and
+the epistemic domain is structurally necessary --- not a design choice.
+\end{corollary}
+
+%% ─────────────────────────────────────────────
+\section{The Epistemic Interface Problem}
+%% ─────────────────────────────────────────────
+
+\subsection{Formal Definition}
+
+\begin{definition}[Frame of Discernment]
+$\Theta = \{\theta_1, \ldots, \theta_n\}$ is a finite set of mutually exclusive
+and exhaustive hypotheses, shared by all agents in the MAS and by the orchestrator.
+\end{definition}
+
+\begin{definition}[Belief Mass Function]
+A belief mass function $m: 2^\Theta \to [0,1]$ satisfies
+$\sum_{A \subseteq \Theta} m(A) = 1$.
+In the unnormalised TBM formulation \cite{smets1994}, $m(\emptyset) \ge 0$ is the
+conflict mass, preserved rather than redistributed --- avoiding Zadeh's paradox.
+\end{definition}
+
+\begin{definition}[Belnap State]
+A Belnap state $\beta \in \{T, F, B, N\}$ \cite{belnap1977} represents:
+$T$ (True) = proposition believed; $F$ (False) = proposition disavowed;
+$B$ (Both) = contradictory evidence received; $N$ (Neither) = no evidence
+received --- the qualified-silence state.
+\end{definition}
+
+\begin{keyresult}
+\begin{definition}[Epistemic Interface Problem (EIP)]
+Given agent $A_i$ with internal latent state $h_t \in \Real^{d_h}$ at time $t$,
+and an orchestrator $O$ operating over $\Theta$, the EIP is the problem of
+constructing a mapping $\gamma_i: \Real^{d_h} \times T \times K \times P \to \Bel(\Theta)$
+satisfying simultaneously:
+(1) \textbf{Calibration} --- $m$ is a formally calibrated belief function;
+(2) \textbf{Qualified silence} --- the system can distinguish ``no evidence''
+($\beta = N$) from ``negative evidence'' ($\beta = F$);
+(3) \textbf{Provenance} --- the belief function carries a verifiable identifier
+of its source agent;
+(4) \textbf{Temporal validity} --- $m$ is accompanied by a validity window;
+(5) \textbf{Auditability} --- the belief function and its combination rules are
+formally certifiable.
+\end{definition}
+\end{keyresult}
+
+\subsection{Why the EIP Cannot Be Resolved in the Latent Domain}
+
+\begin{proposition}
+No continuous latent communication channel simultaneously satisfies constraints
+(2)~Qualified Silence, (3)~Provenance, and (5)~Auditability of Definition~4.4.
+\end{proposition}
+
+\textit{Argument.} Constraint (5) requires a deterministic, symbolic, certifiable
+function --- real-valued vectors are not directly interpretable by certification
+frameworks requiring discrete, enumerable, reproducible states. Constraint (2)
+requires a ternary distinction impossible to represent via near-zero feature values
+without additional symbolic scaffolding. Constraint (3) requires that
+\texttt{chain\_id} be explicitly attached --- latent vectors carry no such metadata
+in existing architectures. $\square$
+
+\subsection{Why the EIP Cannot Be Resolved by Current Protocols}
+
+\begin{proposition}
+No existing agent communication protocol (FIPA-ACL, A2A, MCP, SLIM) resolves the
+EIP. In particular: FIPA-ACL includes an \texttt{ontology} field but provides no
+mechanism to negotiate or validate belief mass distributions; A2A standardises task
+delegation but assumes agents are ``honest about their uncertainty'' without
+specifying a valid uncertainty representation; MCP shares context and allows tool
+calls but does not specify the epistemic content of tool outputs; none of these
+protocols supports $\beta = N$ (qualified silence) as distinct from $\beta = F$
+(negative observation); none supports $m(\emptyset)$ as an explicit conflict
+indicator; the IoA L9 layer \cite{ioa2025} advances toward semantic negotiation but
+remains agnostic about belief representation.
+\end{proposition}
+
+%% ─────────────────────────────────────────────
+\section{The CLAIM Schema as a Formal Solution}
+%% ─────────────────────────────────────────────
+
+\subsection{Definition}
+
+\begin{keyresult}
+\begin{definition}[CLAIM --- Contextual Latent Attestation of Indexed Meaning]
+A CLAIM is a 6-tuple:
+\begin{itemize}[noitemsep]
+\item \texttt{proposition}: $\Phi$ --- propositional content;
+\item \texttt{belief\_mass}: $m: 2^\Theta \to [0,1]$ --- unnormalised TBM mass
+function, $m(\emptyset)$ = explicit conflict mass;
+\item \texttt{belnap\_state}: $\beta \in \{T, F, B, N\}$ --- four-valued epistemic
+state;
+\item \texttt{illocution}: $\kappa \in \{\text{OBSERVE, INFER, DEDUCE, ASSUME}\}$
+--- speech act type;
+\item \texttt{freshness}: $(t_\text{obs}, \Delta t_\text{valid})$ --- timestamp +
+validity window;
+\item \texttt{provenance}: \texttt{chain\_id} --- PROV-O compatible identifier.
+\end{itemize}
+\end{definition}
+\end{keyresult}
+
+\subsection{EIP Satisfaction}
+
+\begin{theorem}[CLAIM Satisfies the EIP]
+Under Assumption~5.1 (the mapping $\gamma_i: \Real^{d_h} \to \text{CLAIM}$ is
+implemented by a calibrated, deterministic function for each agent $A_i$), the
+CLAIM schema satisfies the five constraints of Definition~4.4.
+\end{theorem}
+
+\textit{Proof.}
+(1) Calibration: via TBM mass function on annotated $\Theta$ data.
+(2) Qualified silence: $\beta = N$, explicitly distinct from $B$, $T$, $F$.
+(3) Provenance: \texttt{chain\_id} implementing PROV-O lineage.
+(4) Temporal validity: DST discounting $m_\text{disc}(A) = \alpha \cdot m(A) + (1-\alpha) \cdot m(\Theta)$.
+(5) Auditability: the CLAIM is a stateless, deterministic data structure whose
+combination rules are algebraic operations with formal proofs. $\square$
+
+\subsection{Orchestrator Rules --- Axiomatic Justification (v0.2)}
+
+\paragraph{Rule O1 --- TBM Conjunctive Combination \cite{smets1994}.}
+\[
+  m_{1 \oplus 2}(A) = \sum_{B \cap C = A} m_1(B) \cdot m_2(C), \quad A \subseteq \Theta.
+\]
+\textbf{Axiomatic justification} (Klawonn \& Smets 1992; Pichon \& Deno\oe{}ux 2008):
+the unnormalised conjunctive rule is the \emph{unique} rule satisfying simultaneously
+(a) associativity, (b) commutativity, (c) neutral element (the vacuous belief
+function), (d) the Least Commitment Principle (LCP) --- it never adds more belief
+than the available information justifies. Dempster's normalised rule satisfies
+(a)--(c) but violates LCP by redistributing $m(\emptyset)$ (Zadeh's paradox).
+Rule O1 is therefore axiomatically necessary, not arbitrary. The conflict mass
+$m(\emptyset)$ is preserved as an explicit indicator of inter-agent disagreement.
+
+\paragraph{Rule O3 --- Source Deduplication (Cautious Rule, Deno\oe{}ux 2008).}
+Activated when common \texttt{chain\_id} prefixes detect a shared source between agents.
+The conjunctive cautious rule is idempotent: $m \oplus_\text{cautious} m = m$. This
+property is necessary when agents share an undeclared common source: combining the
+same evidence twice must not double-count it. The combination O1 (independence) +
+O3 (dependence) provides complete coverage of the combination problem. To our
+knowledge, this Smets/Deno\oe{}ux pair has not been explicitly formulated as an
+adaptive combination policy based on detected provenance in the existing literature.
+
+\paragraph{Rule O5 --- Human Escalation Threshold.}
+When $m(\emptyset) \ge \theta_\text{conflict}$, the orchestrator suspends automated
+decision-making and escalates to a human operator rather than resolving the conflict
+algorithmically. This is not a conservative choice --- it is a consequence of the
+LCP. Redistributing $m(\emptyset)$ would violate LCP (adding unjustified belief).
+The only decision compatible with LCP in the face of persistent conflict is to
+expose it to the decision-maker. Escalation transmits: the value of $m(\emptyset)$,
+the source pair identified by PCR5, Belnap states of all involved agents, and
+illocution types (to distinguish conflicts between observations, inferences, or
+assumptions).
+
+\subsection{The Calibration Problem --- The Open Question}
+
+Theorem~5.1 proves that CLAIM satisfies the EIP under Assumption~5.1 --- that the
+mapping $\gamma_i: \Real^{d_h} \to \text{CLAIM}$ is calibrated and deterministic.
+This assumption is non-trivial and represents the main open problem identified by
+this paper.
+
+Deep EK-NN \cite{hoarau2025} provides the most complete answer for classification
+tasks: use $k$-nearest-neighbours in latent space to construct mass functions by
+distance-weighted evidential combination. This approach: (\checkmark) produces
+calibrated mass functions from latent representations; (\checkmark) explicitly
+separates epistemic from aleatoric uncertainty; (\checkmark) works with pretrained
+models; ($\times$) requires a labelled reference set in latent space; ($\times$)
+does not extend to open-vocabulary generation tasks; ($\times$) does not address
+the inter-agent boundary.
+
+\subsection{Theoretical Unification via the Fuzzy Belnap Space (v0.2 --- New)}
+
+\subsubsection{The Fuzzy Belnap Space (Perry \& Tsoukias 1998)}
+
+Perry \& Tsoukias \cite{perry1998} define a continuous extension of Belnap's
+four-valued logic. The truth-value space becomes the set of convex combinations of
+the four reference values:
+\[
+  \mathbb{M} = \{(t, f, k, u) \in [0,1]^4 \mid t + f + k + u = 1\}
+\]
+where $t$ = degree of truth, $f$ = degree of falsity, $k$ = degree of contradiction
+(both), $u$ = degree of unknown (neither). The four classical Belnap values are the
+corners of the simplex: $T = (1,0,0,0)$, $F = (0,1,0,0)$, $B = (0,0,1,0)$,
+$N = (0,0,0,1)$.
+
+\subsubsection{Isomorphism with TBM Mass Functions}
+
+A mass function $m$ over $\Theta_\text{Belnap} = \{T, F, B, N\}$ assigns masses
+to the 16 subsets of $\{T, F, B, N\}$. The atomic masses ---
+$m(\{T\}), m(\{F\}), m(\{B\}), m(\{N\})$ --- are exactly the components
+$(t, f, k, u)$ of the Perry-Tsoukias space when restricted to masses on singletons.
+This is not an analogy --- it is an isomorphism: every point of $\mathbb{M}$
+corresponds to a belief mass function concentrated on the four Belnap atoms.
+The unified object is:
+\[
+  m_\text{meta}: 2^{\Theta \times \{T,F,B,N\}} \to [0,1]
+\]
+This object simultaneously encodes: (a) what the agent believes about the world
+(hypotheses $\theta \in \Theta$), and (b) the agent's epistemic status regarding
+its own belief (truth, falsity, contradiction, ignorance).
+
+\subsubsection{Projections and CLAIM Fields}
+
+The two CLAIM fields are projections of $m_\text{meta}$:
+\begin{itemize}[noitemsep]
+\item \texttt{belief\_mass} (world level): $m_\text{world}(\theta) = \sum_\beta m_\text{meta}(\theta, \beta)$ --- marginalisation over epistemic status.
+\item \texttt{belnap\_state} (epistemic level): $m_\text{epist}(\beta) = \sum_\theta m_\text{meta}(\theta, \beta)$ --- marginalisation over world hypotheses.
+\end{itemize}
+The discrete $\beta \in \{T, F, B, N\}$ is the limit case where $m_\text{epist}$
+is concentrated on a single atom. The full $m_\text{meta}$ object is an
+architectural option for NMT 4--5.
+
+\subsubsection{Connection with O-Information}
+
+A remarkable connection with the synergy measure (GIB, \cite{westphal2025}) emerges:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+O-Information & Belnap State & TBM Interpretation \\
+\midrule
+$+1$ (max synergy) & $T$ (true) & Pure complementarity --- information combines perfectly \\
+$-1$ (max redundancy) & $F$ (false) & Total overlap --- agents duplicate \\
+$0$ with mixed components & $B$ (contradiction) & Tension --- synergy and redundancy coexist \\
+$0$ with null components & $N$ (ignorance) & Independence --- no shared information \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{Adaptive Stopping Criterion for RecursiveMAS}
+
+The fuzzy Belnap representation immediately suggests a principled stopping
+criterion for RecursiveMAS recursive rounds:
+
+\textbf{Stopping criterion:} Terminate recursion when $u$ (unknown) and $k$
+(contradiction) fall below their respective thresholds $\theta_u$ and $\theta_k$
+--- indicating that belief has stabilised and additional rounds will no longer
+reduce epistemic uncertainty.
+
+\textbf{Escalation criterion:} If $k$ (contradiction) remains persistently above
+$\theta_k$ despite $r \ge r_\text{max}$ rounds, trigger Rule O5 (human escalation)
+--- the system has identified an irresolvable inter-agent conflict.
+
+This criterion is formally justified by the axiomatic structure of the CLAIM:
+stopping when $u \downarrow$ and $k \downarrow$ is a direct application of the LCP
+(believe only what the information justifies; stop when no new information arrives).
+To our knowledge, no existing MAS paper proposes a formally justified stopping
+criterion for recursive collaboration based on epistemic state.
+
+%% ─────────────────────────────────────────────
+\section{The Expressivity / Accountability Boundary}
+%% ─────────────────────────────────────────────
+
+\begin{keyresult}
+\begin{theorem}[Structural Necessity of the Expressivity/Accountability Boundary]
+No communication channel $C: \Real^{d_h} \to O$ simultaneously satisfies:
+(a) \textbf{Gradient preservation}: $\exists\, c > 0$, $\forall h \in M$,
+$\|\partial R_C / \partial h\|_2 \ge c$ for all entropy values $\varepsilon$; and
+(b) \textbf{Formal auditability}: $O$ is a discrete, enumerable, certifiable output
+space.
+\end{theorem}
+\end{keyresult}
+
+\textit{Proof.}
+By Theorem~3.1, if $O$ is discrete (condition b), then
+$\|\partial R_C / \partial h\|_2 \le O(\varepsilon)$, which vanishes as
+$\varepsilon \to 0$ (violates condition a). If $O$ is continuous (satisfies
+condition a via RecursiveLink), then $O = \Real^{d'}$ is not a discrete,
+enumerable space (violates condition b). $\square$
+
+\begin{center}
+\begin{tabular}{p{5.5cm}p{5.5cm}}
+\toprule
+\textbf{Continuous Latent Domain} & \textbf{Symbolic Epistemic Domain} \\
+\midrule
+RecursiveMAS, Interlat, KVComm & CLAIM + Orchestrator \\
+$h_t \in \Real^{d_h}$ & $m: 2^\Theta \to [0,1]$, $\beta \in \{T,F,B,N\}$ \\
+Gradient preservation & Certifiable, auditable \\
+Expressivity maximisation & Accountability maximisation \\
+Opaque to certification & DO-178C / IEC 61508 compatible \\
+\midrule
+\multicolumn{2}{c}{$\longleftarrow \gamma_i \longrightarrow$ (open calibration problem --- Section~5.4)} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%% ─────────────────────────────────────────────
+\section{Related Work --- Positioning}
+%% ─────────────────────────────────────────────
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Work & Expressivity & EIP & Across Agent Boundaries \\
+\midrule
+RecursiveMAS \cite{yang2026} & \checkmark Complete & $\times$ & N/A (latent domain) \\
+Interlat \cite{du2025} & \checkmark Partial & $\times$ & N/A \\
+Deep EK-NN \cite{hoarau2025} & N/A & \checkmark Single agent & $\times$ \\
+Epistemic DL \cite{manchingal2022} & N/A & \checkmark Single agent & $\times$ \\
+FIPA-ACL / A2A / MCP & $\times$ (syntax) & $\times$ & Syntactic only \\
+IoA L9 \cite{ioa2025} & N/A & $\sim$ Partial (ontology) & $\checkmark$ Non-epistemic \\
+\textbf{This work --- CLAIM} & N/A (by Thm.~6.1) & \checkmark Formal & \checkmark Defined \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%% ─────────────────────────────────────────────
+\section{Conclusion}
+%% ─────────────────────────────────────────────
+
+We have identified, formalised, and partially resolved the Epistemic Interface
+Problem in multi-agent systems. The central contributions of v0.2 are:
+
+\begin{enumerate}[leftmargin=*]
+\item The EIP is a problem distinct from expressivity. Improving the communication
+channel (RecursiveMAS) does not resolve the EIP. Improving epistemic frameworks
+within individual agents (Deep EK-NN) does not resolve the EIP. The interface
+between the two domains is the gap.
+
+\item Gradient death is more general than RecursiveMAS claims --- it applies to
+any discrete channel parametrised by softmax --- but is not predicted by the IB
+theory itself. This correction strengthens the paper's argument by making it
+implementation-agnostic at the architectural level.
+
+\item The Expressivity/Accountability boundary is necessary (Theorem~6.1).
+Hybrid neuro-symbolic architectures must make this boundary explicit.
+
+\item CLAIM is a minimal formal solution satisfying the EIP under bounded
+assumptions. The calibration problem ($\gamma_i$) is the open research frontier.
+
+\item The \texttt{belief\_mass} and \texttt{belnap\_state} fields are theoretically
+unified: they are projections of a single mass function over Perry \& Tsoukias's
+(1998) fuzzy Belnap space. This provides complete axiomatic foundations for all
+CLAIM invariants and for orchestrator rules O1/O3/O5.
+\end{enumerate}
+
+%% ─────────────────────────────────────────────
+\section{Open Problems}
+%% ─────────────────────────────────────────────
+
+\begin{itemize}[leftmargin=*]
+\item Formal convergence proof for the proposed $\gamma_i$ calibration (Section~5.4)
+\item Extension to open-world hypothesis spaces ($|\Theta|$ not predefined)
+\item Empirical validation on multimodal ISR datasets
+\item Integration with formal verification tools for orchestrator combination rules
+\item Strategic behaviour analysis: what happens if agents have incentives to
+misreport their \texttt{belief\_mass}?
+\item Formal study of the Smets/Deno\oe{}ux duality (O1/O3) as an adaptive
+combination policy
+\end{itemize}
+
+%% ─────────────────────────────────────────────
+\section{Future Extensions}
+%% ─────────────────────────────────────────────
+
+Three concrete research directions follow from the theoretical unification of
+Section~5.5.
+
+\subsection{Latent Channel with Credal Output}
+
+Replace RecursiveMAS's final text output with a CLAIM: the last RecursiveLink
+produces not a decoded text but a quadruplet $(t, f, k, u)$ in the fuzzy Belnap
+space --- a continuous credal output. Residual epistemic uncertainty is measured by
+$u$ (unknown) and $k$ (contradiction). This architecture is the direct
+implementation of Corollary~3.2: the continuous latent domain (RecursiveMAS) feeds
+the symbolic epistemic domain (CLAIM) via the calibrated mapping $\gamma_i$.
+
+\subsection{Recursive Belief Fusion}
+
+After each RecursiveMAS round, combine all agents' CLAIM mass functions by an
+adaptive rule: Rule O1 (Smets, unnormalised conjunctive) for independent agents
+(distinct \texttt{chain\_id} prefixes); Rule O3 (Deno\oe{}ux cautious) for
+source-correlated agents (common \texttt{chain\_id} prefixes). This adaptive fusion
+transforms RecursiveMAS from a purely latent architecture into an explicit epistemic
+reasoning system. The accumulated conflict mass $m(\emptyset)$ across rounds is the
+signal for both additional rounds (if below $\theta_\text{conflict}$) and human
+escalation (if above $\theta_\text{conflict}$).
+
+\subsection{Adaptive Stopping via Epistemic Uncertainty Measure}
+
+Using the quadruplet $(t, f, k, u)$ as the agent state, define a formally justified
+stopping criterion:
+\begin{itemize}[noitemsep]
+\item Continue recursion when $u + k > \theta_\text{uncertainty}$
+\item Stop when $u + k \le \theta_\text{uncertainty}$ for all agents (belief stabilised)
+\item Escalate when $k > \theta_\text{conflict}$ for $r \ge r_\text{max}$ consecutive rounds
+\end{itemize}
+This is the first formally justified adaptive stopping rule for recursive
+multi-agent collaboration, grounded in TBM axiomatics and the LCP. It replaces
+RecursiveMAS's fixed-round approach ($r = 1, 2, 3$) with a principled termination
+condition.
+
+\textbf{Integration path:} NMT 2--3: operational CLAIM schema with discrete Belnap
+(current specification). NMT 4--5: full $m_\text{meta}: 2^{\Theta \times
+\{T,F,B,N\}} \to [0,1]$ with continuous fuzzy Belnap output, adaptive stopping and
+recursive belief fusion.
+
+%% ─────────────────────────────────────────────
+\bibliographystyle{plainnat}
 \bibliography{references}
 
 \end{document}
