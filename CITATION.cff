@@ -1,0 +1,59 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+type: software
+title: "The Epistemic Interface Problem in Multi-Agent Systems"
+abstract: >
+  Formal identification and resolution of the Epistemic Interface Problem (EIP):
+  the absence of a formal contract governing the transformation of an agent's
+  internal latent state into an auditable epistemic declaration. Includes the
+  Epistemic Impossibility Theorem (EIT) and the CLAIM schema.
+authors:
+  - family-names: Dinga-Reassi
+    given-names: Andrei
+    orcid: ""
+    email: andrei@dravitch.io
+    affiliation: "Independent Researcher"
+version: "0.2"
+date-released: "2026-05-31"
+license: CC-BY-4.0
+repository-code: "https://github.com/dravitch/eip-theorem"
+doi: "10.5281/zenodo.XXXXXXX"
+keywords:
+  - multi-agent systems
+  - epistemic uncertainty
+  - Transferable Belief Model
+  - Belnap logic
+  - Information Bottleneck
+  - gradient death
+  - auditability
+  - latent space communication
+  - CLAIM schema
+  - formal verification
+references:
+  - type: article
+    authors:
+      - family-names: Yang
+        given-names: Yu
+    title: "Recursive Multi-Agent Systems"
+    year: 2026
+    journal: "arXiv preprint arXiv:2604.25917v1"
+  - type: conference-paper
+    authors:
+      - family-names: Tishby
+        given-names: Naftali
+      - family-names: Pereira
+        given-names: Fernando C.
+      - family-names: Bialek
+        given-names: William
+    title: "The information bottleneck method"
+    year: 1999
+    conference:
+      name: "37th Allerton Conference on Communication, Control, and Computing"
+  - type: book-chapter
+    authors:
+      - family-names: Smets
+        given-names: Philippe
+    title: "What is Dempster-Shafer's model?"
+    year: 1994
+    publisher:
+      name: Wiley

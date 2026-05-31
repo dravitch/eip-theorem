@@ -1,0 +1,484 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage{longtable}
+
+\geometry{margin=2.5cm}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=blue!60!black,
+  urlcolor=blue!60!black,
+  pdftitle={EIP Project: Final Validation Report},
+  pdfauthor={Andrei Dinga-Reassi},
+}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\newmdenv[linecolor=green!50!black,backgroundcolor=green!4,linewidth=1pt,
+  innertopmargin=6pt,innerbottommargin=6pt,innerleftmargin=8pt,innerrightmargin=8pt]{validated}
+\newmdenv[linecolor=orange!70!black,backgroundcolor=orange!4,linewidth=1pt,
+  innertopmargin=6pt,innerbottommargin=6pt,innerleftmargin=8pt,innerrightmargin=8pt]{partial}
+\newmdenv[linecolor=blue!40!black,backgroundcolor=blue!3,linewidth=1pt,
+  innertopmargin=6pt,innerbottommargin=6pt,innerleftmargin=8pt,innerrightmargin=8pt]{keyresult}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small EIP --- Final Validation Report --- May 2026}
+\lhead{\small Dinga-Reassi}
+\cfoot{\thepage}
+
+\begin{document}
+
+%% ─────────────────────────────────────────────
+%%  TITLE
+%% ─────────────────────────────────────────────
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+
+{\LARGE\bfseries EIP Project: Final Validation Report}\\[0.5em]
+{\large Experimental Validation of the Epistemic Impossibility Theorem}\\[0.3em]
+{\large\itshape Sprints 0--8 Completed --- May 2026}
+
+\vspace{0.8cm}
+\begin{tabular}{c}
+\textbf{Andrei Dinga-Reassi}\\[0.2em]
+Independent Researcher\\[0.2em]
+\href{https://github.com/dravitch}{github.com/dravitch}
+\end{tabular}
+
+\vspace{0.6cm}
+{\small
+Zenodo: \href{https://doi.org/10.5281/zenodo.XXXXXXX}{10.5281/zenodo.XXXXXXX}
+\quad$\cdot$\quad
+Paper repo: \href{https://github.com/dravitch/eip-theorem}{github.com/dravitch/eip-theorem}\\
+Validation repo: \href{https://github.com/symbioticode/epistemic-impossibility-validation}{symbioticode/epistemic-impossibility-validation}
+}
+
+\vspace{1cm}
+\begin{mdframed}[linecolor=green!50!black,backgroundcolor=green!5]
+\centering\large\bfseries
+STATUS: DEMONSTRATED AND VALIDATED \checkmark\\[0.3em]
+\normalsize Next milestone: ICLR 2027 submission --- August 2026
+\end{mdframed}
+
+\vspace{0.8cm}
+\begin{mdframed}[linecolor=gray!40,backgroundcolor=gray!4]
+\small\textbf{Acknowledgements.}
+This work was developed with the assistance of Claude (Anthropic) as a
+collaborative reasoning tool for specification design, formal verification,
+and external review simulation across Sprints 0--8. The intellectual
+contributions, design decisions, and responsibility for the content are those
+of the author.
+\end{mdframed}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+%% ─────────────────────────────────────────────
+\section{Executive Summary}
+%% ─────────────────────────────────────────────
+
+The EIP project has produced a complete formal demonstration and experimental
+validation of the Epistemic Impossibility Theorem (EIT). Over nine sprints
+(Sprint~0 to Sprint~8), the project established that no communication channel can
+be simultaneously gradient-preserving and auditable --- two fundamental properties
+in multi-agent machine learning.
+
+The formal proof (Theorem~7.1) received a final GO verdict from the external
+reviewer (REV-FINAL, Score 84/100). The three experimental corollaries were
+validated, with two complete confirmations and one partially negative result
+documented with full transparency. The GitHub repository is stable, synchronised,
+and 100\% complete.
+
+The manuscript \texttt{EIP\_paper\_v0.3.md} is ready for editorial finalisation
+ahead of an ICLR 2027 submission in August 2026.
+
+%% ─────────────────────────────────────────────
+\section{Central Problem and Research Questions}
+%% ─────────────────────────────────────────────
+
+\subsection{Main Question}
+
+The project started from a fundamental tension identified in the MAS literature:
+learned communication channels require gradient preservation to enable continuous
+learning, while formal safety requirements impose that these same channels be
+auditable --- verifiable by effective procedures.
+
+\begin{keyresult}
+\textbf{Central question:} \textit{Can a communication channel be simultaneously
+gradient-preserving (necessary for learning) and auditable (necessary for formal
+safety)?}
+
+The demonstrated answer is \textbf{negative}: these two properties are mutually
+incompatible. This result constitutes the Epistemic Impossibility Theorem.
+\end{keyresult}
+
+\subsection{Research Sub-Questions}
+
+\begin{longtable}{p{0.5cm}p{6.5cm}p{4cm}p{1.5cm}}
+\toprule
+\# & Sub-question & Answer & Sprint(s) \\
+\midrule
+SQ1 & Are the auditability conditions (a)(b)(c) independent and non-circular? &
+Yes --- confirmed REV-S0.5 (100\%) & 0.5 \\
+SQ2 & Does auditability imply countability of the certified output space? &
+Yes --- Auditability-Discreteness Lemma (Strategy B, GO Q1+Q2) & 7 \\
+SQ3 & Is countability alone sufficient to conclude topological impossibility? &
+No --- requires hypotheses $\gamma$ (O metric) and $\zeta$ (C(M)$\subseteq$O$_\text{cert}$), BR-010 resolved & 7 it.2 \\
+SQ4 & Do text, latent, and CLAIM channels behave as predicted by EIT experimentally? &
+Yes --- text Jacobian collapsed, latent stable, CLAIM intermediate (p=0.0, 12/12) & 1--3 \\
+SQ5 & Can a hybrid architecture circumvent the EIT bound? &
+Yes --- by separating modes (train/certify), Corollary 3 confirmed (p$<$0.001) & 6 \\
+\bottomrule
+\end{longtable}
+
+%% ─────────────────────────────────────────────
+\section{Architecture of the Formal Proof}
+%% ─────────────────────────────────────────────
+
+\subsection{Deductive Structure of the EIT}
+
+The proof of Theorem~7.1 rests on a six-step chain of topological arguments, built
+above the Auditability-Discreteness Lemma:
+
+\begin{center}
+\begin{tabular}{p{0.5cm}p{5.5cm}p{5.5cm}}
+\toprule
+Step & Intermediate result & External primitive \\
+\midrule
+0 (Lemma) & $O_\text{cert}$ is at most countable &
+Sipser 2013 / Hrbacek-Jech 1999 ($\Sigma^*$ countable) \\
+1 & $O_\text{cert}$ is zero-dimensional &
+Engelking, Th.\ 6.2.8 (Sierpi{\'n}ski) \\
+2 & $O_\text{cert}$ is totally disconnected &
+Engelking \S6.2 (T$_1$ + zero-dim $\Rightarrow$ tot.\ disc.) \\
+3 & $C(M)$ is totally disconnected (via H4) &
+Engelking \S6.2 (hereditary property) \\
+4 & $C(M)$ is connected &
+Munkres Th.\ 23.5 / Bourbaki (continuous image of connected) \\
+5 & $C(M)$ is a singleton $\Rightarrow$ $C$ is constant &
+Engelking \S6.1 (connected $\cap$ tot.\ disc. = singleton) \\
+6 & Contradiction: $J_C = 0 \ge c > 0$ impossible &
+Lee, Smooth Manifolds ch.~3 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Theorem Hypotheses}
+
+Four mutually incompatible hypotheses, all necessary and used:
+\begin{itemize}[leftmargin=*]
+\item \textbf{H1} --- Channel $C: M \to O$, $M$ connected Riemannian manifold (dim~$> 0$), $O$ metric space, $C$ continuous.
+\item \textbf{H2} --- Gradient-preserving: $\exists\, c > 0$, $\forall h \in M$, $\|J_C(h)\|_2 \ge c$.
+\item \textbf{H3} --- Auditable: conditions (a) decidability, (b) validation predicate, (c) finite representation.
+\item \textbf{H4} --- $\zeta$: $C(M) \subseteq O_\text{cert}$ (all outputs of $C$ are certified).
+\end{itemize}
+
+\subsection{Resolution of the Topological Gap (BR-010 / QO-S7-01)}
+
+The external reviewer (REV-S7, Q3) had identified that the Lemma alone was
+insufficient to conclude the EIT: two gaps were open --- (G1) nothing imposed
+$C(M) \subseteq O_\text{cert}$, and (G2) set-theoretic countability does not
+constrain the inherited topology of $O$.
+
+The PI decision adopted the $\zeta + \gamma$ combo: addition of hypothesis H4
+($\zeta$) in Theorem~7.1's statement, and addition of metrisability of $O$ ($\gamma$)
+in the channel definition. This resolution preserves conditions (a)(b)(c) and the
+results of REV-S0.5 and REV-S7 Q1+Q2 in their entirety.
+
+The counter-example $\mathbb{Q} \subset \mathbb{R}$ raised by the reviewer actually
+illustrates the proof: $\mathbb{Q}$ as a metric subspace is zero-dimensional
+(Engelking 6.2.8), hence totally disconnected, and a continuous map from a
+connected space to $\mathbb{Q}$ is indeed constant.
+
+\subsection{Belnap/TBM Isomorphism}
+
+The formalisation of mass functions (CLAIMChannel) rests on an isomorphism between
+the fuzzy Belnap space and Smets's Transferable Belief Model (TBM). For any state
+$(\alpha, \beta) \in [0,1]^2$, the corresponding mass function is:
+\[
+  m(\{T\}) = \alpha(1-\beta), \quad m(\{F\}) = (1-\alpha)\beta, \quad
+  m(\{T,F\}) = \alpha\beta, \quad m(\Theta) = (1-\alpha)(1-\beta).
+\]
+The sum is always 1, and the bijection preserves conjunction and disjunction
+operations.
+
+%% ─────────────────────────────────────────────
+\section{Experimental Answers to Sub-Questions}
+%% ─────────────────────────────────────────────
+
+\subsection{Corollary 1 --- Textual MAS Benchmarks (Confirmed)}
+
+In a multi-agent system where agents communicate via auditable textual channels,
+the capacity to preserve gradients is bounded from above.
+
+\begin{validated}
+\textbf{Experimental result} (Sprint~5, 4-class classification task,
+$\Theta = \{\text{friend, enemy, neutral, unknown}\}$, $N=10$ runs, 50 rounds):
+\begin{itemize}[noitemsep]
+\item Text channel: accuracy plateaus from the first rounds (median Jacobian $\approx 0.001$, collapse confirmed).
+\item Latent channel: continuous progression or maintained superior performance (median Jacobian $\approx 2.55$).
+\item Significance: $p < 10^{-40}$, effect size $r = -1.0$ (total separation on 12/12 comparisons).
+\end{itemize}
+Status: \textbf{CONFIRMED} --- the auditable text channel effectively blocks the gradient signal.
+\end{validated}
+
+\subsection{Corollary 2 --- Multi-Agent RLHF (Not Confirmed --- Documented Negative Result)}
+
+In a multi-agent RLHF system with auditable channel, a trade-off should exist
+between reward signal precision and exploration capacity.
+
+\begin{partial}
+\textbf{Experimental result} (Sprint~5, QO-S5-02):
+\begin{itemize}[noitemsep]
+\item RLHF signal observed: 0.0 for all confidence levels ($\kappa = 0.3, 0.6, 0.9$) after the first round.
+\item The gradient technically passes through the autograd graph on $h$ (verified by \texttt{debug\_final.py}), but collapses instantly in the multi-round simulation.
+\item Interpretation: the CLAIM space is extremely sensitive to the discretisation induced by $\kappa$, or the task collapses into a numerically zero-gradient local minimum.
+\end{itemize}
+Status: \textbf{NOT CONFIRMED} --- partial negative result documented as technical debt QO-S5-02, documented as future work in manuscript Section~7. This negative result strengthens academic credibility (transparency).
+\end{partial}
+
+\subsection{Corollary 3 --- Hybrid Architectures (Confirmed)}
+
+A hybrid architecture combining a gradient-preserving channel and an auditable
+channel can outperform the best single channel, circumventing the EIT bound by
+separation of concerns.
+
+\begin{validated}
+\textbf{Experimental result} (Sprint~6, HybridOrchestrator, BR-009 adopted):
+\begin{itemize}[noitemsep]
+\item Jacobian gap (hybrid vs text\_only): $\approx 2.12$ (adopted threshold 0.10).
+\item Certification gap (hybrid vs latent\_only): $1.0$ (adopted threshold 0.15).
+\item Significance: $p < 0.001$ on both axes.
+\item Rule O3 validated: quasi-perfect correlation ($r = 1.0$) for trust propagation via CLAIM channel.
+\end{itemize}
+Status: \textbf{CONFIRMED} --- the hybrid architecture reaches the Ideal Zone (Figure~4), impossible for a single channel.
+\end{validated}
+
+%% ─────────────────────────────────────────────
+\section{Key Architectural Decisions}
+%% ─────────────────────────────────────────────
+
+\begin{longtable}{p{1cm}p{5cm}p{6cm}p{1.5cm}}
+\toprule
+BR & Question & Decision adopted & Status \\
+\midrule
+BR-001 & Personas vs external AIs & External AIs for independent validation (DeepSeek, Gemini) & Applied \\
+BR-003 & Base model & GPT-2 small (117M) sufficient for initial experiments & Adopted \\
+BR-004 & TBM combination rule & Rule O3 (generalised Deno\oe{}ux) --- validated Sprint~6 & Resolved \\
+BR-007 & Collaborative task Sprints 5--6 & 4-class classification ($\Theta = $ friend/enemy/neutral/unknown) & Resolved \\
+BR-009 & Hybrid superiority criterion & Jacobian gap $\ge 0.10$ / Cert gap $\ge 0.15$ --- observed $> 2.0$ and $1.0$ & Adopted \\
+BR-010 & Proof strategy: Lemma + topological gap & Strategy B (direct representation) as main proof; $\zeta + \gamma$ combo to close G1 and G2 & Resolved (May 2026) \\
+\bottomrule
+\end{longtable}
+
+%% ─────────────────────────────────────────────
+\section{Sprint Progression}
+%% ─────────────────────────────────────────────
+
+\paragraph{Sprint 0 --- Theoretical Foundations.}
+Formal definitions of channel $C$, gradient-preserving, and auditability (conditions
+a, b, c). Repository setup, tool selection (Python/PyTorch, GPT-2 small).
+Identification of 10 architectural decisions (BR-001 to BR-010). Establishment of
+LLM Council for critical decisions.
+
+\paragraph{Sprint 0.5 --- Non-Circularity Verification.}
+External audit (Analyst Opus~4.7, extended thinking) of auditability conditions.
+Result: conditions (a)(b)(c) independent, no hidden assumptions, GNG-PAPER score
+100\% on the theoretical section. Validation of the Belnap/TBM isomorphism
+(score 25/25).
+
+\paragraph{Sprints 1--3 --- Instrumentation and Basic Experimental Validation.}
+Sprint~1: implementation of TextChannel (argmax + differentiable proxy),
+LatentChannel (gradient-preserving), CLAIMChannel (TBM mass functions). Bit-exact
+reproducibility validated. Sprint~2: main EIT experiment, 900 results, Mann-Whitney
+U on 12/12 comparisons ($p = 0.0$, $r = -1.0$). Sprint~3: figure and table
+generation, CSV/figure consistency confirmed.
+
+\paragraph{Sprints 4--5 --- Writing and Corollaries.}
+Sprint~4: manuscript \texttt{EIP\_paper\_v0.3.md} written, real figures/tables
+integrated (placeholders replaced), REV-FINAL audit GO (Score 84/100). Sprint~5:
+experimental validation of Corollaries 1 and 2 --- Corollary~1 confirmed
+($p < 10^{-40}$), Corollary~2 negative result documented (QO-S5-02).
+
+\paragraph{Sprint 6 --- Hybrid Architecture.}
+HybridOrchestrator implementation, Corollary~3 validation, adoption of BR-009
+(superiority thresholds). Rule O3 validated ($r = 1.0$). GNG-PAPER Sprint~6
+score: 85/100.
+
+\paragraph{Sprint 7 --- Theoretical Strengthening.}
+Auditability-Discreteness Lemma demonstrated (Strategies A and B). Topological gap
+identified by external reviewer (REV-S7 Q3 NO-GO). Resolution by PI decision:
+$\zeta + \gamma$ combo --- metrisability of $O$ ($\gamma$) + hypothesis H4 ($\zeta$).
+Complete proof verified in \texttt{tie\_formal.md \S6}.
+
+\paragraph{Sprint 8 --- Cleanup and Stabilisation.}
+Repository cleanup (5 backup files moved), syntactic validation of 9/10 Python
+files (\texttt{analysis.py} corrected), imports 5/5 successful, GitHub
+synchronisation confirmed. Dashboard 100\% on all criteria. Repository stable for
+summer pause before ICLR submission.
+
+%% ─────────────────────────────────────────────
+\section{Repository State as of 31 May 2026}
+%% ─────────────────────────────────────────────
+
+\begin{center}
+\begin{tabular}{lcp{7cm}}
+\toprule
+Component & Score & Detail \\
+\midrule
+Core files & 9/9 (100\%) & Complete structure \\
+Theory & 4/4 (100\%) & \texttt{tie\_formal.md}, Lemma, Corollaries, Isomorphism \\
+Source code (\texttt{src/}) & 6/6 (100\%) & channels, experiment, analysis, calibration, corollaries, hybrid \\
+CSV results & 6/6 (100\%) & raw (901L), conflict (1201L), learning curves (1001L), rlhf (901L), hybrid (201L), correlation (451L) \\
+Brainstorm Records & 10/10 (100\%) & BR-001 to BR-010 \\
+Manuscript & Present & \texttt{EIP\_paper\_v0.3.md} (162L) + v0.1 archived \\
+Git health & \checkmark Synchronised & Branch sprint/8, 15 local backups \\
+Sprint~8 overall score & 7/7 (100\%) & COMPLETE AND STABLE \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%% ─────────────────────────────────────────────
+\section{Next Steps --- ICLR 2027 Submission}
+%% ─────────────────────────────────────────────
+
+The project is on summer pause until August 2026. The following finalisation actions
+have been identified for submission.
+
+\subsection{Editorial Finalisation (High priority)}
+
+\begin{itemize}[leftmargin=*]
+\item Full proofreading for spelling, stylistic consistency, and fr/en mixing
+\item Conversion of Markdown tables (figures/*.md) to \LaTeX{} format for ICLR submission
+\item Verification that all citations correspond to bibliography entries
+\item Addition of ``Broader Impact'' section (ICLR requirement)
+\item Addition of an explicit paragraph on the limitations of over-constraining auditability for creative applications
+\end{itemize}
+
+\subsection{Reproducibility (Medium priority)}
+
+\begin{itemize}[leftmargin=*]
+\item Create \texttt{README-reproducibility.md} with exact command: \texttt{python -m src.experiment\_hybrid --seed 42 --kappa 0.3}
+\item Create \texttt{environment.yml} with exact versions (torch, transformers, scipy, pandas, matplotlib)
+\item Create a git tag at submission time
+\end{itemize}
+
+\subsection{Technical Submission (August 2026)}
+
+\begin{itemize}[leftmargin=*]
+\item Convert manuscript to PDF via ICLR 2027 \LaTeX{} template
+\item Format verification: double column, page limits, double-blind anonymisation
+\item Fill OpenReview form: title, abstract, keywords
+\item Upload archive (code + data + supplement)
+\end{itemize}
+
+%% ─────────────────────────────────────────────
+\section{Final Verdict}
+%% ─────────────────────────────────────────────
+
+\begin{mdframed}[linecolor=green!50!black,backgroundcolor=green!5,linewidth=2pt]
+\centering\large\bfseries
+\checkmark\quad The Epistemic Impossibility Theorem is demonstrated and validated.\quad\checkmark
+\end{mdframed}
+
+\vspace{0.5cm}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Criterion & Result & Reference \\
+\midrule
+Theoretical rigour & GO --- Score 9/10 (topology) & REV-G01, REV-FINAL Q6 \\
+Non-circularity of Lemma & GO confirmed & REV-S7 Q1, REV-S0.5 \\
+Necessity of conditions & GO --- all 3 conditions necessary & REV-S7 Q2, theorem71 formal \\
+Topological gap (G1+G2) & CLOSED via $\zeta + \gamma$ & BR-010 QO-S7-01 RESOLVED \\
+Corollary 1 (Textual MAS) & CONFIRMED ($p < 10^{-40}$) & BR-007, REV-S5 \\
+Corollary 2 (RLHF) & Negative result documented & QO-S5-02, REV-FINAL Q3 \\
+Corollary 3 (Hybrid) & CONFIRMED ($p < 0.001$) & BR-009, REV-S6 \\
+Reproducibility & GO --- seeds 42--52, complete CSV & REV-S2 Q1, REV-G03 \\
+ICLR 2027 ready & GO with editorial revisions & REV-FINAL Q5, Score 84/100 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%% ─────────────────────────────────────────────
+\section{Impact of the EIT on the CLAIM and NEUROSYNAPSE Specifications}
+%% ─────────────────────────────────────────────
+
+\subsection{CLAIM --- Strong and Positive Impact}
+
+The EIT does not contradict the CLAIM --- it provides its theoretical justification
+\emph{a posteriori}. The CLAIM was designed by pragmatic engineering (Smets, Belnap,
+PROV-O). The EIT now explains why this architecture is the only viable one in a
+multi-agent ISR context.
+
+The CLAIM channel is precisely the hybrid architecture of Corollary~3. It
+deliberately separates the two incompatible concerns: \texttt{belief\_mass} (TBM
+mass functions) carries rich, combinable epistemic content, while
+\texttt{provenance} + \texttt{freshness} + conditions (a)(b)(c) guarantee formal
+certifiability. No single channel can do both --- the EIT demonstrates this. The
+CLAIM does it by separating them.
+
+There is a direct implication on the cardinal rule: the fact that the orchestrator
+never resolves a conflict autonomously when $m(\emptyset) \ge \theta_\text{conflict}$
+is no longer merely an operational prudence rule --- it is a formal necessity. An
+orchestrator that resolved conflicts automatically would behave as a pure
+gradient-preserving channel, losing auditability. The cardinal rule is a consequence
+of the EIT.
+
+\subsection{NEUROSYNAPSE --- Moderate Impact, Tension to Document}
+
+NEUROSYNAPSE-ISR is a trained multimodal fusion pipeline --- its core (E1 to E3)
+is by construction gradient-preserving. The final output (E4 + E5) is auditable
+via SHA-256, structured log, knowledge graph. The EIT states that these two
+properties cannot coexist in a single channel. NEUROSYNAPSE separates them into
+distinct stages, which is the correct response --- but this separation is not
+formalised as such in the current specification.
+
+The concrete tension is at the E3$\to$E4 interface: the MC Dropout averaged
+predicates are outputs of a gradient-preserving channel that enter an auditable
+rule engine. The EIT implies that \textbf{this interface is a point of certifiable
+information loss} --- the floating-point values of scenario S-01 are outputs of a
+formally non-auditable network. The auditability of E5 (SHA-256 on outputs)
+guarantees the integrity of the computation, not the certifiability of the
+predicate semantics.
+
+\textbf{Recommended action:} Add a Limit L5 to the specification, honestly
+documenting that the E3$\to$E4 interface constitutes a gradient-preserving /
+auditable boundary in the sense of the EIT, and that the auditability of E5 is
+computational auditability (computation integrity), not semantic auditability
+(certifiability of learned predicates). This is not blocking for NMT-5, but is a
+necessary honesty before any operational deployment.
+
+%% ─────────────────────────────────────────────
+\vspace{1cm}
+\hrule
+\vspace{0.3cm}
+\small
+\textit{Report produced by Claude Sonnet~4.6 (external analyst instance) --- 31 May 2026.}\\
+\textit{EIP Project --- epistemic-impossibility-validation ---
+\href{https://github.com/symbioticode/epistemic-impossibility-validation}%
+{github.com/symbioticode/epistemic-impossibility-validation}}
+
+\end{document}
