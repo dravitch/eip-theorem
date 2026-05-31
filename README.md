@@ -90,7 +90,7 @@ Or open directly in [Overleaf](https://www.overleaf.com) by uploading the `paper
   month        = {May},
   version      = {0.2},
   howpublished = {Working paper. Zenodo.},
-  doi          = {10.5281/zenodo.XXXXXXX},
+  doi          = {10.5281/zenodo.20478868},
   url          = {https://github.com/dravitch/eip-theorem},
   note         = {Developed with the assistance of Claude (Anthropic).
                   Validation: github.com/symbioticode/epistemic-impossibility-validation}
@@ -113,7 +113,8 @@ This work sits at the intersection of:
 ## Related work by the same author
 
 - **D-SIG Standard** — Distilled Signal Standard for IT observability  
-  [github.com/dravitch/dsig-standard](https://github.com/dravitch/dsig-standard) · Zenodo: [10.5281/zenodo.19186972](https://doi.org/10.5281/zenodo.19186972)
+  [github.com/dravitch/dsig-standard](https://github.com/dravitch/dsig-standard) · 
+  **Zenodo**: [10.5281/zenodo.19186972](https://doi.org/10.5281/zenodo.19186972)
 
 ---
 
